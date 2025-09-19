@@ -13,6 +13,10 @@ type BigDigit struct {
 	Data       []int //todo сделать приватными: пока чисто для тестов
 }
 
+func NewBigDigit(slice []int, isNegative bool) *BigDigit {
+	return &BigDigit{Data: slice, IsNegative: isNegative}
+}
+
 func CmpDigit(d1 *BigDigit, d2 *BigDigit) int8 {
 	if d1.IsNegative != d2.IsNegative {
 		if d1.IsNegative {
@@ -164,5 +168,5 @@ func subNotNegative(largerNum []int, smallerNum []int) []int {
 		}
 		res[i] = sub
 	}
-	return RemoveBeginZero(res)
+	return removeBeginZero(res)
 }

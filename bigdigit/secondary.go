@@ -1,6 +1,6 @@
 package bigdigit
 
-func RemoveBeginZero(arr []int) []int {
+func removeBeginZero(arr []int) []int {
 	lastIndex := len(arr) - 1
 	for ; lastIndex > 0 && arr[lastIndex] == 0; lastIndex-- {
 	}

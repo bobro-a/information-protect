@@ -117,6 +117,11 @@ func CmpModule(d1 *BigDigit, d2 *BigDigit) int8 {
 	return 0
 }
 
+func Sum(d1 *BigDigit, d2 *BigDigit) *BigDigit {
+	return &BigDigit{data: make([]int, 0)}
+	//todo
+}
+
 func sumNotNegative(d1 []int, d2 []int) []int {
 	i, j, remains := 0, 0, 0
 	var BASE = int(math.Pow10(POW))
@@ -170,22 +175,27 @@ func Sub(d1 *BigDigit, d2 *BigDigit) *BigDigit {
 	return &BigDigit{data: data, isNegative: isNegative}
 }
 
-func subNotNegative(d1 []int, d2 []int) []int {
+func subNotNegative(largerNum []int, smallerNum []int) []int {
 	var BASE = int(math.Pow10(POW))
 	i, j, loan := 0, 0, 0
-	size := min(len(d1), len(d2))
-	res := make([]int, size)
+	res := make([]int, len(largerNum))
 
-	for ; i < len(d1) && j < len(d2); i, j = i+1, j+1 {
-		sub := d1[i] - loan - d2[j]
+	for ; i < len(largerNum); i++ {
+		sub := largerNum[i] - loan
+		if i < len(smallerNum) {
+			sub -= smallerNum[j]
+		}
+
 		if sub >= 0 {
-			res[i] = sub
 			loan = 0
 		} else {
-			res[i] = sub + BASE
-			loan = 0
+			sub += BASE
+			loan = 1
 		}
+		res[i] = sub
 	}
-	//todo
-	return res
+	lastIndex := len(res) - 1
+	for ; lastIndex > 0 && res[lastIndex] == 0; lastIndex-- {
+	}
+	return res[:lastIndex+1]
 }

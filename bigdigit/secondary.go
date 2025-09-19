@@ -6,3 +6,7 @@ func RemoveBeginZero(arr []int) []int {
 	}
 	return arr[:lastIndex+1]
 }
+
+func isOdd(data int) bool {
+	return data%2 == 1
+}

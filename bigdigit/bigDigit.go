@@ -12,20 +12,20 @@ const (
 )
 
 type BigDigit struct {
-	isNegative bool
-	data       []int
+	IsNegative bool
+	Data       []int //todo сделать приватными: пока чисто для тестов
 }
 
 func SetBytes(b []byte) *BigDigit {
 	result := &BigDigit{}
 	str := string(b)
 	if str[0] == '-' {
-		result.isNegative = true
+		result.IsNegative = true
 		str = str[1:]
 	}
 
 	var countBucket = int(math.Ceil(float64(len(str)) / float64(POW)))
-	result.data = make([]int, countBucket)
+	result.Data = make([]int, countBucket)
 
 	bucket := 0
 	for i := len(str); i > 0; i -= POW {
@@ -35,7 +35,7 @@ func SetBytes(b []byte) *BigDigit {
 		} else {
 			slice = str[i-POW : i]
 		}
-		result.data[bucket], _ = strconv.Atoi(slice)
+		result.Data[bucket], _ = strconv.Atoi(slice)
 		bucket++
 	}
 	return result
@@ -66,32 +66,32 @@ func SetFile(path string) (*BigDigit, error) {
 }
 
 func CmpDigit(d1 *BigDigit, d2 *BigDigit) int8 {
-	if d1.isNegative != d2.isNegative {
-		if d1.isNegative {
+	if d1.IsNegative != d2.IsNegative {
+		if d1.IsNegative {
 			return -1
 		}
 		return 1
 	}
-	if len(d1.data) != len(d2.data) {
-		if len(d1.data) < len(d2.data) {
-			if d1.isNegative {
+	if len(d1.Data) != len(d2.Data) {
+		if len(d1.Data) < len(d2.Data) {
+			if d1.IsNegative {
 				return 1
 			}
 			return -1
 		}
-		if d1.isNegative {
+		if d1.IsNegative {
 			return -1
 		}
 		return 1
 	}
-	for i := len(d1.data) - 1; i >= 0; i-- {
-		if d1.data[i] < d2.data[i] {
-			if d1.isNegative {
+	for i := len(d1.Data) - 1; i >= 0; i-- {
+		if d1.Data[i] < d2.Data[i] {
+			if d1.IsNegative {
 				return 1
 			}
 			return -1
-		} else if d1.data[i] > d2.data[i] {
-			if d1.isNegative {
+		} else if d1.Data[i] > d2.Data[i] {
+			if d1.IsNegative {
 				return -1
 			}
 			return 1
@@ -101,20 +101,25 @@ func CmpDigit(d1 *BigDigit, d2 *BigDigit) int8 {
 }
 
 func CmpModule(d1 *BigDigit, d2 *BigDigit) int8 {
-	if len(d1.data) != len(d2.data) {
-		if len(d1.data) < len(d2.data) {
+	if len(d1.Data) != len(d2.Data) {
+		if len(d1.Data) < len(d2.Data) {
 			return -1
 		}
 		return 1
 	}
-	for i := len(d1.data) - 1; i >= 0; i-- {
-		if d1.data[i] < d2.data[i] {
+	for i := len(d1.Data) - 1; i >= 0; i-- {
+		if d1.Data[i] < d2.Data[i] {
 			return -1
-		} else if d1.data[i] > d2.data[i] {
+		} else if d1.Data[i] > d2.Data[i] {
 			return 1
 		}
 	}
 	return 0
+}
+
+func Sum(d1 *BigDigit, d2 *BigDigit) *BigDigit {
+
+	return &BigDigit{Data: make([]int, 0)}
 }
 
 func sumNotNegative(d1 []int, d2 []int) []int {
@@ -143,49 +148,54 @@ func sumNotNegative(d1 []int, d2 []int) []int {
 func Sub(d1 *BigDigit, d2 *BigDigit) *BigDigit {
 	cmp := CmpModule(d1, d2)
 	var data []int
-	var isNegative bool
-	if cmp == 0 && d1.isNegative == d2.isNegative {
-		return &BigDigit{data: []int{0}, isNegative: false}
+	var IsNegative bool
+	if cmp == 0 && d1.IsNegative == d2.IsNegative {
+		return &BigDigit{Data: []int{0}, IsNegative: false}
 	}
 	switch {
 	case cmp >= 0:
-		if d1.isNegative == d2.isNegative {
-			data = subNotNegative(d1.data, d2.data)
+		if d1.IsNegative == d2.IsNegative {
+			data = subNotNegative(d1.Data, d2.Data)
 		} else {
-			data = sumNotNegative(d1.data, d2.data)
+			data = sumNotNegative(d1.Data, d2.Data)
 		}
-		if d1.isNegative {
-			isNegative = true
+		if d1.IsNegative {
+			IsNegative = true
 		}
 	case cmp == -1:
-		if d1.isNegative == d2.isNegative {
-			data = subNotNegative(d2.data, d1.data)
+		if d1.IsNegative == d2.IsNegative {
+			data = subNotNegative(d2.Data, d1.Data)
 		} else {
-			data = sumNotNegative(d2.data, d1.data)
+			data = sumNotNegative(d2.Data, d1.Data)
 		}
-		if d2.isNegative {
-			isNegative = true
+		if d2.IsNegative {
+			IsNegative = true
 		}
 	}
-	return &BigDigit{data: data, isNegative: isNegative}
+	return &BigDigit{Data: data, IsNegative: IsNegative}
 }
 
-func subNotNegative(d1 []int, d2 []int) []int {
+func subNotNegative(largerNum []int, smallerNum []int) []int {
 	var BASE = int(math.Pow10(POW))
-	i, j, loan := 0, 0, 0
-	size := min(len(d1), len(d2))
-	res := make([]int, size)
+	i, loan := 0, 0
+	res := make([]int, len(largerNum))
 
-	for ; i < len(d1) && j < len(d2); i, j = i+1, j+1 {
-		sub := d1[i] - loan - d2[j]
+	for ; i < len(largerNum); i++ {
+		sub := largerNum[i] - loan
+		if i < len(smallerNum) {
+			sub -= smallerNum[i]
+		}
+
 		if sub >= 0 {
-			res[i] = sub
 			loan = 0
 		} else {
-			res[i] = sub + BASE
-			loan = 0
+			sub += BASE
+			loan = 1
 		}
+		res[i] = sub
 	}
-	//todo
-	return res
+	lastIndex := len(res) - 1
+	for ; lastIndex > 0 && res[lastIndex] == 0; lastIndex-- {
+	}
+	return res[:lastIndex+1]
 }

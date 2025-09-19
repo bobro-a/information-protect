@@ -118,8 +118,30 @@ func CmpModule(d1 *BigDigit, d2 *BigDigit) int8 {
 }
 
 func Sum(d1 *BigDigit, d2 *BigDigit) *BigDigit {
-
-	return &BigDigit{Data: make([]int, 0)}
+	cmp := CmpModule(d1, d2)
+	var data []int
+	var isNegative bool
+	if d1.IsNegative == d2.IsNegative {
+		if d1.IsNegative {
+			isNegative = true
+		}
+		return &BigDigit{Data: sumNotNegative(d1.Data, d2.Data), IsNegative: isNegative}
+	}
+	switch cmp {
+	case 0:
+		return &BigDigit{Data: []int{0}, IsNegative: false}
+	case 1:
+		if d1.IsNegative {
+			isNegative = true
+		}
+		data = subNotNegative(d1.Data, d2.Data)
+	case -1:
+		if d2.IsNegative {
+			isNegative = true
+		}
+		data = subNotNegative(d2.Data, d1.Data)
+	}
+	return &BigDigit{Data: data, IsNegative: isNegative}
 }
 
 func sumNotNegative(d1 []int, d2 []int) []int {
@@ -194,8 +216,5 @@ func subNotNegative(largerNum []int, smallerNum []int) []int {
 		}
 		res[i] = sub
 	}
-	lastIndex := len(res) - 1
-	for ; lastIndex > 0 && res[lastIndex] == 0; lastIndex-- {
-	}
-	return res[:lastIndex+1]
+	return RemoveBeginZero(res)
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
+	"./bigdigit"
 	"fmt"
-	"laba/bigdigit"
 )
 
 const (

@@ -1,6 +1,5 @@
 package bigdigit
 
-// todo: trimzeros?
 func isOdd(data int) bool {
 	return data%2 == 1
 }
@@ -56,7 +55,7 @@ func simpleMult(d1 *BigDigit, d2 *BigDigit) *BigDigit {
 	return &BigDigit{data: resData}
 }
 
-func pow(d1 *BigDigit, degree int) *BigDigit {
+func Pow(d1 *BigDigit, degree int) *BigDigit {
 	resData := make([]int, len(d1.data))
 	resData = append(resData, 1)
 	base := &BigDigit{data: append([]int{}, d1.data...)}

@@ -19,7 +19,7 @@ func Run(cfg config.AppConfig) {
 	var num1, num2 model.BigDigit
 	var err error
 
-	outDir := "bin/out"
+	outDir := cfg.OutDir
 	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}

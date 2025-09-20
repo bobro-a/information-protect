@@ -7,7 +7,7 @@ import (
 
 func (c calculator) Sum() model.BigDigit {
 	cmp := utils.CompareModule(c.d1.Data, c.d2.Data)
-	var data []int
+	var data []int64
 	var isNegative bool
 	if c.d1.IsNegative == c.d2.IsNegative {
 		if c.d1.IsNegative {
@@ -17,7 +17,7 @@ func (c calculator) Sum() model.BigDigit {
 	}
 	switch cmp {
 	case 0:
-		return model.BigDigit{Data: []int{0}, IsNegative: false}
+		return model.BigDigit{Data: []int64{0}, IsNegative: false}
 	case 1:
 		if c.d1.IsNegative {
 			isNegative = true

@@ -23,13 +23,14 @@ func New(d1 model.BigDigit, d2 model.BigDigit) Calculator {
 	return &calculator{d1: d1, d2: d2}
 }
 
-func sumNotNegative(d1 []int, d2 []int) []int {
-	i, j, remains := 0, 0, 0
-	var BASE = int(math.Pow10(POW))
+func sumNotNegative(d1 []int64, d2 []int64) []int64 {
+	i, j := 0, 0
+	var remains int64
+	var BASE = int64(math.Pow10(POW))
 	size := max(len(d1), len(d2))
-	res := make([]int, size)
+	res := make([]int64, size)
 	for ; i < len(d1) && j < len(d2); i, j = i+1, j+1 {
-		res[i] = (d1[i] + d2[j] + remains) % BASE
+		res[i] = (d1[i] + d2[j] + int64(remains)) % BASE
 		remains = (d1[i] + d2[j] + remains) / BASE
 	}
 	for ; i < len(d1); i++ {
@@ -46,13 +47,13 @@ func sumNotNegative(d1 []int, d2 []int) []int {
 	return res
 }
 
-func subNotNegative(largerNum []int, smallerNum []int) []int {
-	var BASE = int(math.Pow10(POW))
+func subNotNegative(largerNum []int64, smallerNum []int64) []int64 {
+	var BASE = int64(math.Pow10(POW))
 	i, loan := 0, 0
-	res := make([]int, len(largerNum))
+	res := make([]int64, len(largerNum))
 
 	for ; i < len(largerNum); i++ {
-		sub := largerNum[i] - loan
+		sub := largerNum[i] - int64(loan)
 		if i < len(smallerNum) {
 			sub -= smallerNum[i]
 		}

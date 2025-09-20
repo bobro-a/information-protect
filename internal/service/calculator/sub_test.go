@@ -3,8 +3,9 @@ package calculator
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"information-protect/internal/model"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSub(t *testing.T) {

@@ -17,11 +17,27 @@
 ```
 cmd/                       # точка входа для сборки бинарника
 internal/app/              # основная логика приложения: файлы или генерация чисел
+internal/config/           # чтение конфигурации из YAML
 internal/converter/        # чтение и запись BigDigit из файлов
 internal/generator/        # генерация случайных больших чисел
 internal/model/            # структура BigDigit
 internal/service/calculator/ # реализация операций калькулятора
 internal/utils/            # вспомогательные функции
+configs/                   # YAML конфиги приложения
+```
+
+---
+
+## Конфигурация
+
+Программа использует YAML-файл для конфигурации (`configs/config-local.yaml`):
+
+```yaml
+num_file1: ""          # путь к первому числу, если пусто — генерируется
+num_file2: ""          # путь ко второму числу, если пусто — генерируется
+num_size: 128          # размер сгенерированного числа (количество элементов []int64)
+pow: 9                 # сколько цифр хранится в одном элементе
+out_dir: "bin/out"     # папка для вывода результатов
 ```
 
 ---
@@ -30,7 +46,7 @@ internal/utils/            # вспомогательные функции
 
 ```bash
 make build       # сборка бинарника в bin/information-protect
-make run         # сборка и запуск
+make run         # сборка и запуск программы с использованием YAML-конфига
 make clean       # удаление бинарников из bin
 ```
 
@@ -38,34 +54,38 @@ make clean       # удаление бинарников из bin
 
 ## Генерация случайных чисел
 
-Для генерации случайных больших чисел и вычислений:
+Если `num_file1` и `num_file2` пустые, программа сгенерирует случайные числа:
 
 ```bash
-make build &&
-./bin/information-protect -size=10 -pow=9
+make run
 ```
 
-* `-size` — количество цифр в случайных числах
-* `-pow` — степень для операции возведения в степень
+Сгенерированные числа автоматически сохраняются в `out/num1.txt` и `out/num2.txt`.
 
 ---
 
 ## Использование файлов с числами
 
-Создание файлов с числами:
+Если вы хотите использовать свои числа, создайте файлы, например:
 
 ```bash
 make files
 ```
 
-Запуск программы с файлами:
+В `configs/config-local.yaml` укажите пути:
 
-```bash
-make build &&
-./bin/information-protect -file1=in/num1.txt -file2=in/num2.txt -pow=9
+```yaml
+num_file1: "in/num1.txt"
+num_file2: "in/num2.txt"
 ```
 
-Результаты сохраняются в папку `out/`:
+Запуск программы:
+
+```bash
+make run
+```
+
+Результаты операций сохраняются в `out/`:
 
 ```
 sum.txt, sub.txt, mul.txt, pow.txt, quot.txt, rem.txt, gcd.txt, lcm.txt
@@ -77,7 +97,4 @@ sum.txt, sub.txt, mul.txt, pow.txt, quot.txt, rem.txt, gcd.txt, lcm.txt
 
 * Go 1.21+
 
-
-## TODO
-
-- не работает со знаками плюс/минус, нужно с этими кейсами отдебажить
+---

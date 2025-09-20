@@ -32,3 +32,24 @@ func CompareModule(d1, d2 []int64) int8 {
 	}
 	return 0
 }
+
+// Автоматический расчет base по двум слайсам
+func AutoBase(d1, d2 []int64) int64 {
+	maxElem := int64(0)
+	for _, v := range d1 {
+		if v > maxElem {
+			maxElem = v
+		}
+	}
+	for _, v := range d2 {
+		if v > maxElem {
+			maxElem = v
+		}
+	}
+
+	base := int64(1)
+	for base <= maxElem {
+		base *= 10
+	}
+	return base
+}

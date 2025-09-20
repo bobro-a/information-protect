@@ -1,32 +1,36 @@
 package calculator
 
 import (
-	"fmt"
-
 	"information-protect/internal/model"
 	"information-protect/internal/utils"
 )
 
 func (c calculator) Mul(a, b model.BigDigit) (res model.BigDigit) {
-	lenA, lenB := len(a.Data), len(b.Data)
-	temp := make([]int64, lenA+lenB)
+	// Работаем с модулями чисел
+	aAbs := c.Abs(a) // возвращает BigDigit с IsNegative=false
+	bAbs := c.Abs(b)
 
-	for i := 0; i < lenA; i++ {
-		var remain int64
-		for j := 0; j < lenB; j++ {
-			tmp := a.Data[i]*b.Data[j] + temp[i+j] + remain
-			temp[i+j] = tmp % c.base
-			remain = tmp / c.base
+	// Автоматически определяем базу
+	base := utils.AutoBase(aAbs.Data, bAbs.Data)
+
+	// Результат может быть длины len(a)+len(b)
+	res.Data = make([]int64, len(aAbs.Data)+len(bAbs.Data))
+
+	for i := 0; i < len(aAbs.Data); i++ {
+		var carry int64
+		for j := 0; j < len(bAbs.Data); j++ {
+			tmp := aAbs.Data[i]*bAbs.Data[j] + res.Data[i+j] + carry
+			res.Data[i+j] = tmp % base
+			carry = tmp / base
 		}
-		if remain > 0 {
-			temp[i+lenB] += remain
+		if carry != 0 {
+			res.Data[i+len(bAbs.Data)] += carry
 		}
 	}
 
-	res = model.BigDigit{
-		Data:       utils.RemoveLeadingZeros(temp),
-		IsNegative: a.IsNegative != b.IsNegative,
-	}
-	fmt.Println("test mul")
-	return
+	res.Data = utils.RemoveLeadingZeros(res.Data)
+
+	res.IsNegative = a.IsNegative != b.IsNegative
+
+	return res
 }

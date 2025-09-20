@@ -5,29 +5,25 @@ import (
 	"log"
 	"os"
 
+	"information-protect/internal/config"
 	"information-protect/internal/converter"
 	"information-protect/internal/generator"
 	"information-protect/internal/model"
 	"information-protect/internal/service/calculator"
 )
 
-// AppConfig хранит настройки приложения
-type AppConfig struct {
-	NumFile1 string
-	NumFile2 string
-	NumSize  int // количество цифр, если будем генерировать
-	Pow      int64
-}
-
-// Run выполняет работу приложения
-func Run(cfg AppConfig) {
+func Run(cfg config.AppConfig) {
 	// Создаем калькулятор
-	calc := calculator.NewCalculator(cfg.Pow)
+	calc := calculator.NewCalculator()
 
 	var num1, num2 model.BigDigit
 	var err error
 
-	// Проверяем, переданы ли файлы
+	outDir := "bin/out"
+	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
 	if cfg.NumFile1 != "" && cfg.NumFile2 != "" {
 		num1, err = converter.FromFile(cfg.NumFile1)
 		if err != nil {
@@ -43,40 +39,69 @@ func Run(cfg AppConfig) {
 		num1 = generator.GenerateBigNumber(cfg.NumSize)
 		num2 = generator.GenerateBigNumber(cfg.NumSize)
 		fmt.Println("Числа сгенерированы случайным образом")
+
+		// Сохраняем сгенерированные числа в файлы
+		if err := converter.ToFile(outDir+"/num1.txt", num1); err != nil {
+			log.Printf("Ошибка записи num1.txt: %v", err)
+		}
+		if err := converter.ToFile(outDir+"/num2.txt", num2); err != nil {
+			log.Printf("Ошибка записи num2.txt: %v", err)
+		}
+		fmt.Println("Сгенерированные числа сохранены в файлы num1.txt и num2.txt")
 	}
 
-	// Выполняем операции
-	sum := calc.Sum(num1, num2)
-	sub := calc.Sub(num1, num2)
-	mul := calc.Mul(num1, num2)
-	pow := calc.Pow(num1, 3)
-	quot, rem := calc.Div(num1, num2)
-	//gcd := calc.GCD(num1, num2)
-	//lcm := calc.LCM(num1, num2)
+	// Канал для результатов операций
+	type result struct {
+		name string
+		val  model.BigDigit
+		err  error
+	}
+	resCh := make(chan result)
 
-	// Создаем папку для результатов
-	outDir := "bin/out"
-	err = os.MkdirAll(outDir, os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
+	// операции
+	operations := []struct {
+		name string
+		fn   func() model.BigDigit
+	}{
+		{"sum.txt", func() model.BigDigit { return calc.Sum(num1, num2) }},
+		{"sub.txt", func() model.BigDigit { return calc.Sub(num1, num2) }},
+		{"mul.txt", func() model.BigDigit { return calc.Mul(num1, num2) }},
+		{"pow.txt", func() model.BigDigit { return calc.Pow(num1, int(cfg.Pow)) }},
+		{"quot.txt", func() model.BigDigit {
+			q, _ := calc.Div(num1, num2)
+			return q
+		}},
+		{"rem.txt", func() model.BigDigit {
+			_, r := calc.Div(num1, num2)
+			return r
+		}},
+		{"gcd.txt", func() model.BigDigit { return calc.GCD(num1, num2) }},
+		{"lcm.txt", func() model.BigDigit { return calc.LCM(num1, num2) }},
 	}
 
-	// Сохраняем результаты в файлы
-	results := map[string]model.BigDigit{
-		"sum.txt":  sum,
-		"sub.txt":  sub,
-		"mul.txt":  mul,
-		"pow.txt":  pow,
-		"quot.txt": quot,
-		"rem.txt":  rem,
-		//"gcd.txt":  gcd,
-		//"lcm.txt":  lcm,
+	// Запускаем операции в горутинах
+	for _, op := range operations {
+		go func(opName string, fn func() model.BigDigit) {
+			defer func() {
+				if r := recover(); r != nil {
+					resCh <- result{opName, model.BigDigit{}, fmt.Errorf("%v", r)}
+				}
+			}()
+			resCh <- result{opName, fn(), nil}
+		}(op.name, op.fn)
 	}
 
-	for name, val := range results {
-		path := outDir + "/" + name
-		if err := converter.ToFile(path, val); err != nil {
-			log.Fatalf("Ошибка записи %s: %v", name, err)
+	// Сохраняем результаты из канала
+	for range operations {
+		r := <-resCh
+		if r.err != nil {
+			log.Printf("Ошибка при вычислении %s: %v", r.name, r.err)
+			continue
+		}
+		path := outDir + "/" + r.name
+		if err := converter.ToFile(path, r.val); err != nil {
+			log.Printf("Ошибка записи %s: %v", r.name, err)
+			continue
 		}
 		fmt.Printf("Сохранено %s\n", path)
 	}

@@ -32,31 +32,35 @@ func (c calculator) Sum(d1, d2 model.BigDigit) (res model.BigDigit) {
 	return res
 }
 
-func (c calculator) sumNotNegative(d1 []int64, d2 []int64) (res []int64) {
+func (c calculator) sumNotNegative(d1 []int64, d2 []int64) []int64 {
+	base := utils.AutoBase(d1, d2)
 	i, j := 0, 0
 	var remains int64
-	var base = c.base
 
 	size := max(len(d1), len(d2))
-	res = make([]int64, size)
+	res := make([]int64, size)
 
 	for ; i < len(d1) && j < len(d2); i, j = i+1, j+1 {
 		sum := d1[i] + d2[j] + remains
 		res[i] = sum % base
 		remains = sum / base
 	}
+
 	for ; i < len(d1); i++ {
 		sum := d1[i] + remains
 		res[i] = sum % base
 		remains = sum / base
 	}
+
 	for ; j < len(d2); j++ {
 		sum := d2[j] + remains
 		res[j] = sum % base
 		remains = sum / base
 	}
+
 	if remains != 0 {
 		res = append(res, remains)
 	}
+
 	return res
 }

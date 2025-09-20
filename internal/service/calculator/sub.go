@@ -37,10 +37,10 @@ func (c calculator) Sub(a, b model.BigDigit) (res model.BigDigit) {
 	return
 }
 
-func (c calculator) subNotNegative(largerNum []int64, smallerNum []int64) (res []int64) {
+func (c calculator) subNotNegative(largerNum []int64, smallerNum []int64) []int64 {
+	base := utils.AutoBase(largerNum, smallerNum)
+	res := make([]int64, len(largerNum))
 	var loan int64
-	res = make([]int64, len(largerNum))
-	base := c.base
 
 	for i := 0; i < len(largerNum); i++ {
 		sub := largerNum[i] - loan
@@ -48,12 +48,13 @@ func (c calculator) subNotNegative(largerNum []int64, smallerNum []int64) (res [
 			sub -= smallerNum[i]
 		}
 
-		if sub >= 0 {
-			loan = 0
-		} else {
+		if sub < 0 {
 			sub += base
 			loan = 1
+		} else {
+			loan = 0
 		}
+
 		res[i] = sub
 	}
 

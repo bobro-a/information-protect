@@ -19,19 +19,19 @@ else
   NUM2 := $(word 3, $(MAKECMDGOALS))
 endif
 
-.PHONY: all build clean run files test
+.PHONY: all build clean run files run-files test
 
 all: build
 
 build:
 	@mkdir -p $(BIN_DIR)
-	go build -o $(OUT) ./cmd/$(APP_NAME)
+	go build -ldflags "-X 'main.ConfigPath=$(CONFIG)'" -o $(OUT) ./cmd/$(APP_NAME)
 
 clean:
 	rm -rf $(BIN_DIR)
 
 run: build
-	$(OUT) -config=$(CONFIG)
+	$(OUT)
 
 files:
 	@mkdir -p in
@@ -40,8 +40,12 @@ files:
 	@echo "$(NUM2)" > in/num2.txt
 	@echo "Files num1.txt and num2.txt created with values: $(NUM1), $(NUM2)"
 
+run-files: files build
+	$(OUT) -file1=in/num1.txt -file2=in/num2.txt -pow=9
+
 test:
 	go test ./internal/... -v
 
+# заглушка, чтобы make не считал числа целями
 %:
 	@:

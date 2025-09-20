@@ -5,7 +5,14 @@ import (
 	"information-protect/internal/config"
 )
 
+var (
+	ConfigPath string
+)
+
 func main() {
-	cfg := config.LoadConfig("configs/config-local.yaml")
+	if ConfigPath == "" {
+		ConfigPath = "configs/config-local.yaml"
+	}
+	cfg := config.LoadConfig(ConfigPath)
 	app.Run(cfg)
 }

@@ -15,13 +15,13 @@ func (c calculator) Div(a, b model.BigDigit) (quotient, remainder model.BigDigit
 	remainder = c.Abs(a) // используем модуль
 	bAbs := c.Abs(b)
 
-	for utils.CompareModule(remainder.Data, bAbs.Data) >= 0 {
+	for utils.CompareModuleWithRemoveZeros(remainder.Data, bAbs.Data) >= 0 {
 		tmp := bAbs
 		mult := model.BigDigit{Data: []int64{1}, IsNegative: false}
 
 		for {
 			tmpShift := c.Mul(tmp, model.BigDigit{Data: []int64{base}, IsNegative: false})
-			if utils.CompareModule(tmpShift.Data, remainder.Data) > 0 {
+			if utils.CompareModuleWithRemoveZeros(tmpShift.Data, remainder.Data) > 0 {
 				break
 			}
 			tmp = tmpShift

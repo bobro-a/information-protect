@@ -30,6 +30,27 @@ func CompareModule(d1, d2 []int64) int8 {
 	return 0
 }
 
+func CompareModuleWithRemoveZeros(d1, d2 []int64) int8 {
+	d1 = RemoveLeadingZeros(d1)
+	d2 = RemoveLeadingZeros(d2)
+
+	if len(d1) > len(d2) {
+		return 1
+	} else if len(d1) < len(d2) {
+		return -1
+	}
+
+	// сравниваем старший разряд к младшему
+	for i := len(d1) - 1; i >= 0; i-- {
+		if d1[i] > d2[i] {
+			return 1
+		} else if d1[i] < d2[i] {
+			return -1
+		}
+	}
+	return 0
+}
+
 // Автоматический расчет base по двум слайсам
 func AutoBase(d1, d2 []int64) int64 {
 	maxElem := int64(0)

@@ -8,7 +8,7 @@ import (
 func (c calculator) GCD(a, b model.BigDigit) model.BigDigit {
 	zero := model.BigDigit{Data: []int64{0}, IsNegative: false}
 	a = c.Abs(a)
-	b = c.Abs(a)
+	b = c.Abs(b)
 
 	for utils.CompareModule(b.Data, zero.Data) != 0 {
 		_, remainder := c.Div(a, b)

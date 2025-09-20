@@ -1,10 +1,10 @@
 APP_NAME=information-protect
 BIN_DIR=bin
-OUT_DIR=bin/out
+OUT_DIR=$(BIN_DIR)/out
 CONFIG=configs/config-local.yaml
 OUT=$(BIN_DIR)/$(APP_NAME)
 
-.PHONY: all build clean run files
+.PHONY: all build clean run files test
 
 all: build
 
@@ -23,3 +23,6 @@ files:
 	@echo "123456789" > in/num1.txt
 	@echo "987654321" > in/num2.txt
 	@echo "Files num1.txt and num2.txt created and filled."
+
+test:
+	go test ./internal/... -v

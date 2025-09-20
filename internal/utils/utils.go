@@ -13,9 +13,6 @@ func RemoveLeadingZeros(arr []int64) []int64 {
 // CompareModule сравнивает два числа по модулю
 // возвращает 1 если d1>d2, -1 если d1<d2, 0 если равны
 func CompareModule(d1, d2 []int64) int8 {
-	d1 = RemoveLeadingZeros(d1)
-	d2 = RemoveLeadingZeros(d2)
-
 	if len(d1) > len(d2) {
 		return 1
 	} else if len(d1) < len(d2) {

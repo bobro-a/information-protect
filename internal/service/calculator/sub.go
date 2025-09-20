@@ -6,7 +6,10 @@ import (
 )
 
 func (c calculator) Sub(a, b model.BigDigit) (res model.BigDigit) {
-	cmp := utils.CompareModule(a.Data, b.Data)
+	cmp := utils.CompareModule(
+		utils.RemoveLeadingZeros(a.Data),
+		utils.RemoveLeadingZeros(b.Data),
+	)
 
 	// Если числа равны по модулю и имеют одинаковый знак → результат 0
 	if cmp == 0 && a.IsNegative == b.IsNegative {

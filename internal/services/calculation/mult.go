@@ -1,10 +1,12 @@
 package calculation
 
+import "infp01/internal/model"
+
 func (c calculator) Mult() model.BigDigit {
-	len1, len2 := len(d1.Data), len(d2.Data)
+	len1, len2 := len(c.d1.Data), len(c.d2.Data)
 
 	if len1 < 15 && len2 < 15 {
-		return simpleMult(d1, d2)
+		return simpleMult(c.d1, c.d2)
 	}
 
 	n := len1
@@ -16,44 +18,47 @@ func (c calculator) Mult() model.BigDigit {
 	}
 
 	N := n / 2
-	a := &BigDigit{Data: d1.Data[N:]}
-	b := &BigDigit{Data: d1.Data[:N]}
-	c := &BigDigit{Data: d1.Data[N:]}
-	d := &BigDigit{Data: d1.Data[:N]}
+	a := model.BigDigit{Data: c.d1.Data[N:]}
+	b := model.BigDigit{Data: c.d1.Data[:N]}
+	c2 := model.BigDigit{Data: c.d1.Data[N:]}
+	d := model.BigDigit{Data: c.d1.Data[:N]}
 
-	ac := Mult(a, c)
-	bd := Mult(b, d)
-	ab_cd := Sub(Sub(Mult(Sum(a, b), Sum(c, d)), ac), bd)
+	p1 := calculator{d1: a, d2: c2}
+	p2 := calculator{d1: b, d2: d}
+
+	p1 = p1.Mult()
+	p2 = p2.Mult()
+	ab_cd := Sub(Sub(Mult(Sum(a, b), Sum(c2, d)), ac), bd)
 
 	ac.Data = append(make([]int, 2*N), ac.Data...)
 	ab_cd.Data = append(make([]int, N), ab_cd.Data...)
 
-	return &BigDigit{Data: Sum(Sum(ac, bd), ab_cd).Data}
+	return &model.BigDigit{Data: Sum(Sum(ac, bd), ab_cd).Data}
 }
 
 // умножение столбиком
-func simpleMult(d1 *BigDigit, d2 *BigDigit) *BigDigit {
-	resData := make([]int, len(d1.Data)+len(d2.Data))
+func simpleMult(c.d1 *BigDigit, c.d2 *BigDigit) *BigDigit {
+	resData := make([]int, len(c.d1.Data)+len(c.d2.Data))
 
-	for i, digit1 := range d1.Data {
+	for i, digit1 := range c.d1.Data {
 		carry := 0
-		for j, digit2 := range d2.Data {
+		for j, digit2 := range c.d2.Data {
 			res := digit1*digit2 + carry + resData[i+j]
 			resData[i+j] = res % 10
 			carry = res / 10
 		}
 		if carry > 0 {
-			resData[i+len(d2.Data)] += carry
+			resData[i+len(c.d2.Data)] += carry
 		}
 	}
 
 	return &BigDigit{Data: resData}
 }
 
-func Pow(d1 *BigDigit, degree int) *BigDigit {
-	resData := make([]int, len(d1.Data))
+func Pow(c.d1 *BigDigit, degree int) *BigDigit {
+	resData := make([]int, len(c.d1.Data))
 	resData = append(resData, 1)
-	base := &BigDigit{Data: append([]int{}, d1.Data...)}
+	base := &BigDigit{Data: append([]int{}, c.d1.Data...)}
 
 	for degree > 0 {
 		if isOdd(degree) {

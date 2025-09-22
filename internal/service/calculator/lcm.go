@@ -8,21 +8,23 @@ import (
 func (c calculator) LCM(a, b model.BigDigit) model.BigDigit {
 	zero := model.BigDigit{Data: []int64{0}, IsNegative: false}
 
-	// Берем модули чисел
-	aAbs := c.Abs(a)
-	bAbs := c.Abs(b)
-
 	// Если одно из чисел 0 → LCM = 0
-	if utils.CompareModule(aAbs.Data, zero.Data) == 0 || utils.CompareModule(bAbs.Data, zero.Data) == 0 {
+	if utils.CompareModule(a.Data, zero.Data) == 0 || utils.CompareModule(b.Data, zero.Data) == 0 {
 		return zero
 	}
 
-	// LCM(a, b) = |a*b| / GCD(a, b)
-	product := c.Mul(aAbs, bAbs) // модуль произведения
-	gcd := c.GCD(aAbs, bAbs)     // GCD по модулю
+	// |a| и |b|
+	aAbs := c.Abs(a)
+	bAbs := c.Abs(b)
 
-	quotient, _ := c.Div(product, gcd) // деление по модулю
-	quotient.IsNegative = false        // LCM всегда ≥ 0
+	// gcd = GCD(|a|, |b|)
+	gcd := c.GCD(aAbs, bAbs)
 
-	return quotient
+	t := c.divForLcm(aAbs, gcd)
+
+	res := c.Mul(t, bAbs)
+
+	res.IsNegative = false
+
+	return res
 }

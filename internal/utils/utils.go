@@ -71,3 +71,15 @@ func AutoBase(d1, d2 []int64) int64 {
 	}
 	return base
 }
+
+func LeadingDigits(x []int64, n int) int64 {
+	res := int64(0)
+	l := len(x)
+	if l < n {
+		n = l
+	}
+	for i := 0; i < n; i++ {
+		res = res*10 + x[l-1-i]
+	}
+	return res
+}
